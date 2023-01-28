@@ -9955,3 +9955,76 @@ W.WW.W..W.
 ...W....W.
 .....W.W..
 */
+
+//
+function door(events) {
+  const counter = [];
+  let switcher = false;
+  let obstacle = false;
+  for (let i = 0; i < events.length; i++) {
+    const lastELement = counter[counter.length - 1];
+    const event = events[i];
+    if (switcher && !obstacle) {
+      if (event === '.') {
+        const elem = lastELement == '5' ? '5' : +lastELement + 1;
+        counter.push(elem);
+        continue;
+      }
+      if (event === 'P' && lastELement < 5) {
+        switcher = false;
+        counter.push(lastELement);
+        continue;
+      }
+      if (event === 'P' && lastELement == '5') {
+        obstacle = true;
+        const elem = '4';
+        counter.push(elem);
+        continue;
+      }
+      if (event === 'O') {
+        obstacle = true;
+        const elem = lastELement == '0' ? '0' : +lastELement - 1;
+        counter.push(elem);
+        continue;
+      }
+    }
+    if (switcher && obstacle) {
+      if (event === '.') {
+        console.log(event, i, 'HERE');
+        const elem = lastELement == '0' ? '0' : +lastELement - 1;
+        counter.push(elem);
+        continue;
+      }
+      if (event === 'P') {
+        switcher = false;
+        counter.push(lastELement);
+        continue;
+      }
+    }
+    if (!switcher) {
+      if (event === '.') {
+        const elem = i === 0 ? '0' : lastELement;
+        counter.push(elem);
+        continue;
+      }
+      if (event === 'P') {
+        switcher = true;
+        let elem;
+        if (i === 0) elem = 1;
+        else elem = obstacle ? +lastELement - 1 : +lastELement + 1;
+        counter.push(elem);
+        continue;
+      }
+    }
+  }
+  console.log('Length', events.length);
+  return counter.map((el) => el.toString()).join('');
+}
+
+console.log(door('P......O.....')); // 1232222100
+
+// ..P...O..... as input should yield 001234321000 as output
+// P.P.P.... 122234555 // Пока отсчет идет в верх то P просто стопает, а как только дойдет как в примере ниже до 5 то запустит уже в обратную сторону
+// P......P...... 12345554321000 // После того как отсчет дошел до 5 второе нажатие на P не стопанет, а сделает отсчет назад
+// P.O... 1210000 // О просто сделает так что отсчет пойдет в обратную сторону
+// P.. O P.. P.. 1232222100 // P после O просто стопанет отсчет и потом третие P опять стартанет процесс но уже вниз
